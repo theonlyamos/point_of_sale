@@ -127,6 +127,16 @@ class ConnectionHandler:
     except:
       return self.to_object(status="Error", message="An error occured")
 
+  def delete_user(self, id):
+    insert_sql = "DELETE FROM In_Stocks WHERE Item_ID=" + str(id)
+    
+    try:
+      insert_values = self.create_connection(insert_sql)
+      return self.to_object(status="Success", message=insert_values)
+
+    except:
+      return self.to_object(status="Error", message="An error occured")
+
 
   def to_object(self, status, message):
     resp = {}

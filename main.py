@@ -537,10 +537,22 @@ class AdminPage:
         )
         edit_btn.place(anchor="c", relx=mv_x-0.03, rely=mv_y+0.24)
 
+        def handle_delete(id):
+          conn = ConnectionHandler()
+          resp = conn.delete_user(int(id))
+
+          if resp["status"] == "Success":
+            messagebox.showinfo("Status", "Product deleted successfully")
+            get_products_page.place_forget()
+            self.homepage()
+          else:
+            messagebox.showerror("Status", "An error occurred")
+
         delete_btn = Button(
           entry_frame,
           text="Delete",
-          width=10
+          width=10,
+          command=lambda id=x[0]: handle_delete(id)
         )
         delete_btn.place(anchor="c", relx=mv_x+0.03, rely=mv_y+0.24)
 
