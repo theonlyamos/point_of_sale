@@ -131,3 +131,14 @@ class Database:
 
         except Exception as e:
             return {'status': 'Error', 'message': str(e)}
+    
+    @staticmethod
+    def query(query: str):
+        try:
+            Database.cursor.execute(query, None)
+            Database.db.commit()
+
+            return [x for x in Database.cursor.fetchall()]
+
+        except Exception as e:
+            return {'status': 'Error', 'message': str(e)}

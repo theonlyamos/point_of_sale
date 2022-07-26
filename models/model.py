@@ -20,7 +20,7 @@ class Model():
             if not updated_at else updated_at
         self.id = uuid.uuid4() if not id else str(id)
 
-    def save(self):
+    def add(self):
         '''
         Instance Method for saving Model instance to database
 
@@ -42,16 +42,16 @@ class Model():
 
         Database.update(Model.TABLE_NAME, self.id, update)
     
-
-    def count(self)-> int:
+    @classmethod
+    def count(cls)-> int:
         '''
-        Instance Method for counting Model Projects
+        Class Method for counting Model Projects
 
         @params None
         @return int Count of Projects
         '''
 
-        return Database.count(Model.TABLE_NAME)
+        return Database.count(cls.TABLE_NAME)
     
     def json(self)-> Dict:
         '''
@@ -74,7 +74,7 @@ class Model():
         '''
 
         if _id is None:
-            return [cls(**elem) for elem in Database.find(Model.TABLE_NAME)]
+            return [cls(**elem) for elem in Database.find(cls.TABLE_NAME)]
 
-        model = Database.find_one(Model.TABLE_NAME, {'id': _id})
+        model = Database.find_one(cls.TABLE_NAME, {'id': _id})
         return cls(**model) if model else None

@@ -1,17 +1,8 @@
-from threading import Thread
 from tkinter import *
-from tkinter import messagebox
-from tkinter import filedialog
 from tkinter import ttk
-from connection_handler import ConnectionHandler
-from PIL import ImageTk, Image
-from time import sleep
-import os
 
 from pages import LoginPage
-from pages import DashboardPage
-
-from common import Database
+from pages import MainLayoutPage
 
 APP_NAME = "Supermarket Billing System"
 APP_VERSION = '0.0.1'
@@ -22,7 +13,7 @@ supermarket_app.geometry("400x200")
 supermarket_app.overrideredirect(False)
 
 login_page = LoginPage(supermarket_app)
-dashboad_page = DashboardPage(supermarket_app)
+mainlayout = MainLayoutPage(supermarket_app)
 
 intro_frame = Frame(
     supermarket_app,
@@ -32,7 +23,7 @@ intro_frame = Frame(
 
 def startup():
     global intro_frame
-    global dashboad_page
+    global mainlayout
 
     intro_frame.place_forget()
     login_page.initialize()
@@ -46,10 +37,10 @@ loader = ttk.Progressbar(
 
 loader.grid(column=0, row=0)
 
-intro_frame.after(50, loader.start)
+intro_frame.after(5, loader.start)
 
 intro_frame.place(anchor='c', relx=0.5, rely=0.5)
-intro_frame.after(5000, dashboad_page.initialize())
+intro_frame.after(500, startup)
 
 supermarket_app.mainloop()
 

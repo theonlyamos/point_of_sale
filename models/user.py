@@ -1,30 +1,26 @@
-from datetime import datetime
-from typing import Dict, List
-import uuid
+from common import Database
+from common import Utils
+from models import Model
 
 
 from common import Database
-from common import Utils
-#from models import Project
-#from models import Function
+from models import Model
 
 
-class User():
+class User(Model):
     '''A model class for user'''
+    TABLE_NAME = 'Users'
 
-    def __init__(self, email, name, password, created_at=None, updated_at=None, _id=None):
-        self.email = email
+    def __init__(self, username, name, role, password, created_at=None, updated_at=None, id=None):
+        super().__init__()
+        self.username = username
         self.name = name
         self.password = password
-        self.created_at = (datetime.utcnow()).strftime("%a %b %d %Y %H:%M:%S") \
-            if not created_at else created_at
-        self.updated_at = (datetime.utcnow()).strftime("%a %b %d %Y %H:%M:%S") \
-            if not updated_at else updated_at
-        self.id = uuid.uuid4() if not _id else str(_id)
+        self.role = role
 
-    def save(self):
+    def add(self):
         '''
-        Instance Method for saving User instance to database
+        Instance Method for saving Product instance to database
 
         @params None
         @return None
@@ -32,118 +28,59 @@ class User():
 
         data = {
             "name": self.name,
-            "email": self.email,
-            "password": Utils.hash_password(self.password),
-            "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "username": self.username,
+            "role": self.role,
+            "password": Utils.hash_password(self.password)
         }
 
-        return Database.db.users.insert_one(data)
+        return Database.insert(User.TABLE_NAME, data)
     
-    def update(self, update: Dict):
+    @classmethod
+    def get_by_username(cls, username: str):
         '''
-        Instance Method for updating user in database
+        Retrieve User from database by their username
 
-        @param update Content to be update in dictionary format
-        @return None
+        @param username
+        @return User
         '''
 
-        Database.db.users.update_one({'_id': ObjectId(self.id)}, update)
+        sql = f"SELECT * FROM Users WHERE username='{username}'"
+        result = Database.query(sql)
+        
+        if result:
+            return cls(**result[0])
+        return False
     
-    def reset_password(self, new_password: str):
+    @classmethod
+    def authenticate(cls, username: str, role: str):
         '''
-        Instance Method for resetting user password
+        Retrieve User from database by their username
 
-        @param new_password User's new password
-        @return None
+        @param username
+        @return User
         '''
 
-        Database.db.users.update_one({'_id': ObjectId(self.id)}, {'password': new_password})
-        self.password = new_password
+        sql = f"SELECT * FROM Users WHERE username='{username}' AND role='{role}'"
+        result = Database.query(sql)
+        
+        if result:
+            return cls(**result[0])
+        return False
     
-    def projects(self):#-> List[Project]:
-        '''
-        Instance Method for retrieving Projects of User Instance
-
-        @params None
-        @return List of Project Instances
-        '''
-
-        #return Project.get_by_user(self.id)
-        return Database.db.projects.find({'user_id': ObjectId(self.id)})
     
-    def functions(self):#-> List[Function]:
+    def json(self)-> dict:
         '''
-        Instance Method for retrieving Functions of User Instance
-
-        @params None
-        @return List of Function Instances
-        '''
-
-        #return Function.get_by_user(self.id)
-        return Database.db.functions.find({'user_id': ObjectId(self.id)})
-
-    def count_functions(self)-> int:
-        '''
-        Instance Method for counting User functions
-
-        @params None
-        @return int Count of functions
-        '''
-
-        return Database.db.functions.count_documents({'user_id': ObjectId(self.id)})
-
-    def count_projects(self)-> int:
-        '''
-        Instance Method for counting User Projects
-
-        @params None
-        @return int Count of Projects
-        '''
-
-        return Database.db.projects.count_documents({'user_id': ObjectId(self.id)})
-    
-    def json(self)-> Dict:
-        '''
-        Instance Method for converting User Instance to Dict
+        Instance Method for converting Product Instance to Dict
 
         @paramas None
         @return dict() format of Function instance
         '''
 
         return {
-            "_id": str(self.id),
+            "id": str(self.id),
             "name": self.name,
-            "email": self.email,
-            "projects": self.count_projects(),
-            "functions": self.count_functions(),
+            "username": self.username,
+            "role": self.role,
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
-
-    @classmethod
-    def get_by_email(cls, email: str):
-        '''
-        Class Method for retrieving user by email address
-
-        @param email email address of the user 
-        @return User instance
-        '''
-        user = Database.db.users.find_one({"email": email})
-        return cls(**user) if user else None
-
-    @classmethod
-    def get(cls, _id = None):
-        '''
-        Class Method for retrieving function(s) by _id 
-        or all if _id is None
-
-        @param _id ID of the function in database
-        @return Function instance(s)
-        '''
-
-        if _id is None:
-            return [cls(**elem) for elem in Database.db.users.find({})]
-
-        user = Database.db.users.find_one({"_id": ObjectId(_id)})
-        return cls(**user) if user else None
