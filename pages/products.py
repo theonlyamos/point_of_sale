@@ -32,7 +32,7 @@ class ProductsPage(LabelPage):
             for product in self.products_list:
                 self.last_product_id =  self.products_list.index(product)
                 
-                prod = (self.last_product_id+1, product.name, product.price, product.quantity)
+                prod = (product.id, product.name, product.price, product.quantity)
                 self.update_products_table(prod)
                 
         else:
@@ -63,6 +63,22 @@ class ProductsPage(LabelPage):
             
             if result:
                 self.products_table.item(self.products_table.selection()[0], text='', values=result)
+        else:
+            messagebox.showwarning('Error Message', 'Select a row to update')
+    
+    def delete_product(self):
+        if len(self.products_table.selection()):
+            selected = self.products_table.item(self.products_table.selection()[0])
+            
+            confirm = messagebox.askyesno(
+                title='Deletion Confirmation',
+                message='Delete this product?'
+            )
+            if confirm:
+                result = Product.delete(selected['values'][0])
+                
+                if result:
+                    self.products_table.delete(self.products_table.selection()[0])
         else:
             messagebox.showwarning('Error Message', 'Select a row to update')
     
@@ -120,7 +136,7 @@ class ProductsPage(LabelPage):
         Button(
             tools_frame,
             text='Delete Product',
-            command=self.add_product_window
+            command=self.delete_product
         ).grid(column=2, row=2, padx=15)
 
         tools_frame.grid(column=0, row=1, padx=10, sticky='ne')
