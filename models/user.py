@@ -4,7 +4,6 @@ from models import Model
 
 
 from common import Database
-from models import Model
 
 
 class User(Model):

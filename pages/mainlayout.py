@@ -10,8 +10,6 @@ from models import Product
 from pages.products import ProductsPage
 from pages.dashboard import DashboardPage
 
-from common import identity
-
 from io import BytesIO
 import os
 
@@ -21,9 +19,7 @@ class MainLayoutPage():
     '''
 
     def __init__(self, window):
-        global identity
         self.window = window
-        print(identity)
     
     def build_assets(self):
         self.assets = {'dashboard'  : {'name': 'chart-line.svg'},
@@ -51,7 +47,6 @@ class MainLayoutPage():
         self.current_frame = self.dashboard
         self.sidebar_frame.pack(side='left', fill='none', anchor='n')
         self.dashboard.pack(side='right', expand=1, fill='both')
-        #self.frame.place(anchor="c", relx=0.5, rely=0.5)
 
     def create_frames(self):
         '''

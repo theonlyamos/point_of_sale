@@ -37,13 +37,13 @@ class DashboardPage(LabelPage):
 
         products_card = ttk.LabelFrame(
             self,
-            width=250,
+            width=350,
             height=150
         )
 
         users_card = ttk.LabelFrame(
             self,
-            width=250,
+            width=350,
             height=150
         )
 
@@ -55,15 +55,15 @@ class DashboardPage(LabelPage):
             font='Helvetica 15',
             foreground='#4f4f4f',
             borderwidth=2
-        ).pack(side='left', padx=10)
+        ).pack(side='left', padx=5)
 
         self.products_count = ttk.Label(
             products_card,
             text='0',
             foreground='#0052ea',
-            font='monospace 70',
+            font='monospace 60'
         )
-        self.products_count.pack(side='right', padx=10)
+        self.products_count.pack(side='right', padx=5)
 
         ttk.Label(
             users_card,
@@ -73,16 +73,16 @@ class DashboardPage(LabelPage):
             font='Helvetica 15',
             foreground='#4f4f4f',
             borderwidth=2
-        ).pack(side='left', padx=10)
+        ).pack(side='left', padx=5)
 
         self.users_count = ttk.Label(
             users_card,
             text='0',
             foreground='#0052ea',
-            font='monospace 70',
+            font='monospace 60',
         )
         
-        self.users_count.pack(side='right', padx=10)
+        self.users_count.pack(side='right', padx=5)
 
         products_card.place(anchor='c', relx=0.4, rely=0.5)
         users_card.place(anchor='c', relx=0.6, rely=0.5)

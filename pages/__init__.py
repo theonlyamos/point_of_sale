@@ -4,4 +4,5 @@ from pages.login import LoginPage
 from pages.dashboard import DashboardPage
 from pages.products import ProductsPage
 from pages.newproduct import AddProductPage
+from pages.updateproduct import UpdateProductPage
 from pages.mainlayout import MainLayoutPage

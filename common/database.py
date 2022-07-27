@@ -42,11 +42,7 @@ class Database:
             Database.cursor.execute(query, None)
             Database.db.commit()
 
-            if data:
-                return Database.cursor.rowcount
-
-            resp = [x for x in Database.cursor.fetchall()]
-            return {'status': 'success', 'result': resp}
+            return str(Database.cursor.lastrowid)
 
         except Exception as e:
             return {'status': 'Error', 'message': str(e)}
@@ -55,24 +51,18 @@ class Database:
     def update(table: str, id: int, data: dict):
 
         query = f'UPDATE {table} SET'
-        for key, value in data:
-            query += f" {key}='{value},'"
+        for key in data.keys():
+            query += f" {key}='{data[key]}',"
         
         query = query.rstrip(',')
         
         query += f" WHERE id={id}"
-        
-        print(query)
 
         try:
             Database.cursor.execute(query, None)
             Database.db.commit()
 
-            if data:
-                return Database.cursor.rowcount
-
-            resp = [x for x in Database.cursor.fetchall()]
-            return {'status': 'success', 'result': resp}
+            return str(Database.cursor.lastrowid)
 
         except Exception as e:
             return {'status': 'Error', 'message': str(e)}
@@ -83,8 +73,8 @@ class Database:
 
         if len(params.keys()):
             query += ' WHERE '
-            for key, value in params:
-                query += f"{key}='{value}'"
+            for key in params.keys():
+                query += f"{key}='{params[key]}'"
         
         try:
             Database.cursor.execute(query, None)
@@ -98,11 +88,11 @@ class Database:
     @staticmethod
     def find_one(table: str, params: dict = {}):
         query = f'SELECT * FROM {table}'
-
+        
         if len(params.keys()):
             query += ' WHERE '
-            for key, value in params:
-                query += f"{key}='{value}'"
+            for key in params.keys():
+                query += f"{key}='{params[key]}'"
         
         try:
             Database.cursor.execute(query, None)
@@ -120,8 +110,8 @@ class Database:
 
         if len(params.keys()):
             query += ' WHERE '
-            for key, value in params:
-                query += f"{key}='{value}'"
+            for key in params.keys():
+                query += f"{key}='{params[key]}'"
 
         try:
             Database.cursor.execute(query, None)
@@ -139,6 +129,20 @@ class Database:
             Database.db.commit()
 
             return [x for x in Database.cursor.fetchall()]
+
+        except Exception as e:
+            return {'status': 'Error', 'message': str(e)}
+    
+    @staticmethod
+    def delete(table: str, id: int):
+
+        query = f'DELETE FROM {table} WHERE id={id}'
+        
+        try:
+            Database.cursor.execute(query, None)
+            Database.db.commit()
+
+            return str(Database.cursor.lastrowid)
 
         except Exception as e:
             return {'status': 'Error', 'message': str(e)}

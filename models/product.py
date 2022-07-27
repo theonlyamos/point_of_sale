@@ -3,7 +3,7 @@ from models import Model
 
 
 class Product(Model):
-    '''A model class for product'''
+    '''A model class for Products'''
     TABLE_NAME = 'Products'
 
     def __init__(self, name, price, quantity, image, created_at=None, updated_at=None, id=None):
@@ -12,6 +12,9 @@ class Product(Model):
         self.price = price
         self.quantity = quantity
         self.image = image
+        self.created_at = created_at
+        self.updated_at = updated_at
+        self.id = id
 
     def add(self):
         '''
@@ -30,6 +33,20 @@ class Product(Model):
 
         return Database.insert(Product.TABLE_NAME, data)
     
+    @classmethod
+    def get_by_name(cls, name: str):
+        '''
+        Class Method for retrieving products
+        by their names
+
+        @param name
+        @return Product Instance
+        '''
+
+        sql = f"SELECT * from {Product.TABLE_NAME} WHERE "
+        sql += f"name='{name}'"
+
+        return cls(**Database.query(sql)[0])
     
     def json(self)-> dict:
         '''

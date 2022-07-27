@@ -11,6 +11,7 @@ from io import BytesIO
 import os
 
 from pages.newproduct import AddProductPage
+from pages.updateproduct import UpdateProductPage
 
 class ProductsPage(LabelPage):
     '''
@@ -18,7 +19,7 @@ class ProductsPage(LabelPage):
     '''
 
     def update_products_table(self, product):
-        self.products_table.insert(parent='', index='end', iid=self.last_product_id, text='',
+        self.products_table.insert(parent='', index=0, iid=self.last_product_id, text='',
                                     values=product)
     
     def populate_products_table(self):
@@ -38,9 +39,32 @@ class ProductsPage(LabelPage):
             print(self.products_list)
     
     def add_product_window(self):
-        AddProductPage(
+        product_window = AddProductPage(
             self.master
         )
+        product = product_window.show()
+        if product:
+            self.last_product_id = int(product[0])
+            self.products_count['text'] = str(int(product[0]))
+            self.update_products_table(product)
+    
+    def update_product(self):
+        if len(self.products_table.selection()):
+            selected = self.products_table.item(self.products_table.selection()[0])
+            
+            product = Product.get(selected['values'][0])
+
+            product_window = UpdateProductPage(
+                product,
+                self.master
+            )
+            
+            result = product_window.show()
+            
+            if result:
+                self.products_table.item(self.products_table.selection()[0], text='', values=result)
+        else:
+            messagebox.showwarning('Error Message', 'Select a row to update')
     
     def content(self):
         ''''
@@ -69,7 +93,7 @@ class ProductsPage(LabelPage):
             font='Helvetica 15',
             foreground='#4f4f4f',
             borderwidth=2
-        ).pack(side='left', padx=10)
+        ).grid(column=0, row=0)
 
         self.products_count = ttk.Label(
             products_card,
@@ -77,17 +101,29 @@ class ProductsPage(LabelPage):
             foreground='gray',
             font='monospace 50',
         )
-        self.products_count.pack(side='right', padx=10)
+        self.products_count.grid(column=1, row=0, padx=10)
 
-        products_card.pack(side='left', padx=30)
+        products_card.grid(column=3, row=0, sticky='nw')
 
         Button(
             tools_frame,
             text='Add Product',
             command=self.add_product_window
-        ).pack(side='right', padx=20, pady=5)
+        ).grid(column=0, row=2, padx=15)
 
-        tools_frame.pack(anchor='e')
+        Button(
+            tools_frame,
+            text='Update Product',
+            command=self.update_product
+        ).grid(column=1, row=2, padx=15)
+
+        Button(
+            tools_frame,
+            text='Delete Product',
+            command=self.add_product_window
+        ).grid(column=2, row=2, padx=15)
+
+        tools_frame.grid(column=0, row=1, padx=10, sticky='ne')
 
         self.products_table = ttk.Treeview(self)
         self.products_table['columns'] = ('item_id', 'item_name', 'item_price',
@@ -102,7 +138,9 @@ class ProductsPage(LabelPage):
         self.products_table.heading('item_name', text='Name', anchor=CENTER)
         self.products_table.heading('item_price', text='Price', anchor=CENTER)
         self.products_table.heading('item_quantity', text='In Stock', anchor=CENTER)
-        self.products_table.pack(fill='x', expand=1)
+
+        #self.products_table.bind("<<TreeviewSelect>>", self.update_product)
+        self.products_table.grid(column=0, row=2, sticky='ne')
 
         self.after(5, self.populate_products_table)
 

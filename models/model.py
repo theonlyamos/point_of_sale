@@ -32,15 +32,27 @@ class Model():
 
         return Database.insert(Model.TABLE_NAME, data)
     
-    def update(self, update: Dict):
+    @classmethod
+    def update(cls, id, update: Dict):
         '''
-        Instance Method for updating model in database
+        Class Method for updating model in database
 
         @param update Content to be update in dictionary format
         @return None
         '''
 
-        Database.update(Model.TABLE_NAME, self.id, update)
+        return Database.update(cls.TABLE_NAME, id, update)
+    
+    @classmethod
+    def delete(cls, id):
+        '''
+        Class Method for updating model in database
+
+        @param update Content to be update in dictionary format
+        @return None
+        '''
+
+        return Database.delete(cls.TABLE_NAME, id)
     
     @classmethod
     def count(cls)-> int:
@@ -52,16 +64,6 @@ class Model():
         '''
 
         return Database.count(cls.TABLE_NAME)
-    
-    def json(self)-> Dict:
-        '''
-        Instance Method for converting Model Instance to Dict
-
-        @paramas None
-        @return dict() format of Function instance
-        '''
-
-        return {}
 
     @classmethod
     def get(cls, _id = None):
@@ -78,3 +80,13 @@ class Model():
 
         model = Database.find_one(cls.TABLE_NAME, {'id': _id})
         return cls(**model) if model else None
+    
+    def json(self)-> Dict:
+        '''
+        Instance Method for converting Model Instance to Dict
+
+        @paramas None
+        @return dict() format of Function instance
+        '''
+
+        return {}

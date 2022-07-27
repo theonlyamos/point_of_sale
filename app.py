@@ -40,7 +40,7 @@ loader.grid(column=0, row=0)
 intro_frame.after(5, loader.start)
 
 intro_frame.place(anchor='c', relx=0.5, rely=0.5)
-intro_frame.after(500, startup)
+intro_frame.after(500, mainlayout.initialize)
 
 supermarket_app.mainloop()
 

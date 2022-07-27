@@ -8,33 +8,45 @@ import os
 from models import Product
 
 
-class AddProductPage(Toplevel):
+class UpdateProductPage(Toplevel):
     '''
     New Product Form Window
     '''
 
-    def __init__(self, master=None, **kw):
+    def __init__(self, product, master=None, **kw):
         super().__init__()
-        self.title('Add Product')
+        self.product = product
+        self.title('Update Product')
         self.geometry("400x500")
-        self.new_product = None
+        self.updated_product = None
         self.content()
+        self.get_product()
     
-    def add_product(self):
-        'Items, Price, Item_image_link, Quantity'
-        new_product = {'name': self.new_product_name_var.get(), 
-                'price': self.new_product_price_var.get(), 
+    def get_product(self):
+        self.product_name_var.set(self.product.name)
+        self.product_price_var.set(self.product.price)
+        self.product_quantity_var.set(self.product.quantity)
+    
+    def update_product(self):
+        '''
+        Function for committing update
+        to database
+
+        @params None
+        @return None
+        '''
+        update = {'name': self.product_name_var.get(), 
+                'price': self.product_price_var.get(), 
                 'image': '',
-                'quantity': self.new_product_quantity_var.get()}
-        
-        product = Product(**new_product)
-        result = product.add()
+                'quantity': self.product_quantity_var.get()}
+
+        result = Product.update(self.product.id, update)
         
         if result.isnumeric():
-            product = (result, new_product['name'],
-                new_product['price'], new_product['quantity'])
+            product = (self.product.id, update['name'],
+                update['price'], update['quantity'])
             
-            self.new_product = product
+            self.updated_product = product
         else:
             messagebox.showerror('Error Message', result['message'])
         self.destroy()
@@ -47,7 +59,7 @@ class AddProductPage(Toplevel):
 
         ttk.Label(
             self,
-            text='Add Product',
+            text='Update Product',
             font='Helvetica 20 bold',
             foreground='#da1039'
         ).place(anchor='c', relx=0.5, rely=0.15)
@@ -67,10 +79,10 @@ class AddProductPage(Toplevel):
             foreground="#242424"
         ).place(anchor='c', relx=0.5, rely=0.42)
 
-        self.new_product_name_var = StringVar()
+        self.product_name_var = StringVar()
         ttk.Entry(
             self,
-            textvariable=self.new_product_name_var,
+            textvariable=self.product_name_var,
             foreground='#4e4e4e',
             font='monospace 10',
             justify='center'
@@ -83,10 +95,10 @@ class AddProductPage(Toplevel):
             foreground="#242424"
         ).place(anchor='c', relx=0.5, rely=0.56)
 
-        self.new_product_price_var = DoubleVar()
+        self.product_price_var = DoubleVar()
         ttk.Entry(
             self,
-            textvariable=self.new_product_price_var,
+            textvariable=self.product_price_var,
             foreground='#4e4e4e',
             font='monospace 10',
             justify='center'
@@ -99,10 +111,10 @@ class AddProductPage(Toplevel):
             foreground="#242424"
         ).place(anchor='c', relx=0.5, rely=0.7)
 
-        self.new_product_quantity_var = IntVar()
+        self.product_quantity_var = IntVar()
         ttk.Entry(
             self,
-            textvariable=self.new_product_quantity_var,
+            textvariable=self.product_quantity_var,
             foreground='#4e4e4e',
             font='monospace 10',
             justify='center'
@@ -110,20 +122,20 @@ class AddProductPage(Toplevel):
 
         Button(
             self,
-            text='Save',
+            text='Update',
             background='#0052ea',
             activebackground='#0052ea',
             foreground='white',
             activeforeground='white',
             font='monospace 13 bold',
-            command=self.add_product
+            command=self.update_product
         ).place(anchor='c', width=250, height=45, relx=0.5, rely=0.86)
     
     def show(self):
         self.deiconify()
         self.wm_protocol('WM_DELETE_WINDOW', self.destroy)
         self.wait_window(self)
-        return self.new_product
+        return self.updated_product
         
         #self.mainloop()
     
