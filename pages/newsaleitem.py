@@ -5,52 +5,44 @@ from PIL import ImageTk, Image
 
 import os
 
+from models import Sale
+from models import saleitem
 from models import Product
 
-
-class UpdateProductPage(Toplevel):
+class AddSaleItemPage(Toplevel):
     '''
-    New Product Form Window
+    New SaleItem Form Window
     '''
 
     def __init__(self, product, master=None, **kw):
-        super().__init__(master, **kw)
+        super().__init__()
         self.product = product
-        self.title('Update Product')
+        self.title('Add Sales Item')
         self.geometry("400x500")
-        self.updated_product = None
+        self.saleitem = None
         self.content()
         self.get_product()
     
     def get_product(self):
         self.product_name_var.set(self.product.name)
-        self.product_price_var.set(self.product.price)
-        self.product_quantity_var.set(self.product.quantity)
+        self.product_quantity_var.set(1)
+        self.product_total_var.set(self.product.price)
     
-    def update_product(self):
-        '''
-        Function for committing update
-        to database
-
-        @params None
-        @return None
-        '''
-        update = {'name': self.product_name_var.get(), 
-                'price': self.product_price_var.get(), 
-                'image': '',
-                'quantity': self.product_quantity_var.get()}
-
-        result = Product.update(self.product.id, update)
-        
-        if result.isnumeric():
-            product = (self.product.id, update['name'],
-                update['price'], update['quantity'])
-            
-            self.updated_product = product
-        else:
-            messagebox.showerror('Error Message', result['message'])
+    def update_total(self, event):
+        try:
+            quantity = self.product_quantity_var.get()
+            self.product_total_var.set(self.product.price*quantity)
+        except: 
+            pass
+    
+    def add_saleitem(self):
+        self.saleitem = (
+            self.product.id,
+            self.product.name,
+            self.product_quantity_var.get(),
+            self.product_total_var.get()
+        )
         self.destroy()
-    
 
     def content(self):
         #const_url = "add_img.png"
@@ -59,25 +51,17 @@ class UpdateProductPage(Toplevel):
 
         ttk.Label(
             self,
-            text='Update Product',
+            text='Add Item',
             font='Helvetica 20 bold',
             foreground='#da1039'
         ).place(anchor='c', relx=0.5, rely=0.15)
 
-        Button(
-            self,
-            text='Product Image Here',
-            #image=add_img,
-            compound='top',
-            font='Arial 11'
-        ).place(anchor='c', width=250, height=80, relx=0.5, rely=0.3)
-
         ttk.Label(
             self,
-            text='Product Name',
+            text='Item Name',
             font='sans-serif 11',
             foreground="#242424"
-        ).place(anchor='c', relx=0.5, rely=0.42)
+        ).place(anchor='c', relx=0.5, rely=0.3)
 
         self.product_name_var = StringVar()
         ttk.Entry(
@@ -86,56 +70,58 @@ class UpdateProductPage(Toplevel):
             foreground='#4e4e4e',
             font='monospace 10',
             justify='center'
-        ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.48)
+        ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.36)
 
         ttk.Label(
             self,
-            text='Product Price',
+            text='Item Price',
             font='sans-serif 11',
             foreground="#242424"
-        ).place(anchor='c', relx=0.5, rely=0.56)
+        ).place(anchor='c', relx=0.5, rely=0.46)
 
-        self.product_price_var = DoubleVar()
+        self.product_total_var = DoubleVar()
         ttk.Entry(
             self,
-            textvariable=self.product_price_var,
+            textvariable=self.product_total_var,
             foreground='#4e4e4e',
             font='monospace 10',
             justify='center'
-        ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.62)
+        ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.52)
 
         ttk.Label(
             self,
-            text='Product Quantity',
+            text='Item Quantity',
             font='sans-serif 11',
             foreground="#242424"
-        ).place(anchor='c', relx=0.5, rely=0.7)
+        ).place(anchor='c', relx=0.5, rely=0.62)
 
         self.product_quantity_var = IntVar()
-        ttk.Entry(
+        quantity_enty = ttk.Entry(
             self,
             textvariable=self.product_quantity_var,
             foreground='#4e4e4e',
             font='monospace 10',
             justify='center'
-        ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.76)
+        )
+        quantity_enty.bind('<KeyRelease>', self.update_total)
+        quantity_enty.place(anchor='c', width=250, height=35, relx=0.5, rely=0.68)
 
         Button(
             self,
-            text='Update',
+            text='Add',
             background='#0052ea',
             activebackground='#0052ea',
             foreground='white',
             activeforeground='white',
             font='monospace 13 bold',
-            command=self.update_product
-        ).place(anchor='c', width=250, height=45, relx=0.5, rely=0.86)
+            command=self.add_saleitem
+        ).place(anchor='c', width=250, height=45, relx=0.5, rely=0.8)
     
     def show(self):
         self.deiconify()
         self.wm_protocol('WM_DELETE_WINDOW', self.destroy)
         self.wait_window(self)
-        return self.updated_product
+        return self.saleitem
         
         #self.mainloop()
     

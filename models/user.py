@@ -11,7 +11,7 @@ class User(Model):
     TABLE_NAME = 'Users'
 
     def __init__(self, username, name, role, password, created_at=None, updated_at=None, id=None):
-        super().__init__()
+        super().__init__(created_at, updated_at, id)
         self.username = username
         self.name = name
         self.password = password

@@ -4,21 +4,21 @@ from models import Product
 
 class SaleItem(Model):
     '''A model class for SaleItem'''
-    TABLE_NAME = 'SaleItem'
+    TABLE_NAME = 'SaleItems'
 
-    def __init__(self, sales_id, product_id, quantity, total):
-        super().__init__(self, created_at=None, updated_at=None, id=None)
+    def __init__(self, sales_id, product_id, quantity, total, created_at=None, updated_at=None, id=None):
+        super().__init__(created_at, updated_at, id)
         self.sales_id = sales_id
         self.product_id = product_id
         self.quantity = quantity
         self.total = total
 
-    def add(self):
+    def save(self)->int:
         '''
         Instance Method for saving SaleItem instance to database
 
         @params None
-        @return None
+        @return insert_id()
         '''
 
         data = {
@@ -63,7 +63,7 @@ class SaleItem(Model):
         return {
             "id": str(self.id),
             "sales_id": self.sales_id,
-            "product": self.product().json(),
+            "product": self.product().name,
             "quantity": self.quantity,
             "total": self.total,
             "created_at": self.created_at,

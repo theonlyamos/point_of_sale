@@ -2,29 +2,31 @@ from common import Database
 from models import Model
 from models import SaleItem
 
-class Sales(Model):
+class Sale(Model):
     '''A model class for Sales'''
     TABLE_NAME = 'Sales'
 
-    def __init__(self, total):
-        super().__init__(self, created_at=None, updated_at=None, id=None)
+    def __init__(self, total, user_id=1, created_at=None, updated_at=None, id=None):
+        super().__init__(created_at, updated_at, id)
         self.total = total
+        self.user_id = user_id
 
-    def add(self):
+    def save(self)->int:
         '''
         Instance Method for saving Sales instance to database
 
         @params None
-        @return None
+        @return insert_id()
         '''
 
         data = {
+            "user_id": self.user_id,
             "total": self.total
         }
 
-        return Database.insert(Sales.TABLE_NAME, data)
+        return Database.insert(Sale.TABLE_NAME, data)
     
-    def items(self)-> list[SaleItem]:
+    def items_count(self)-> int:
         '''
         Instance Method for retrieving purchased Items
 
@@ -32,9 +34,11 @@ class Sales(Model):
         @return List[Saleitem]
         '''
 
-        saleitems = SaleItem.get_by_sales(self.id)
-        print(saleitems)
-        return saleitems
+        sql = f"SELECT SUM(quantity) as count FROM SaleItems WHERE sales_id={self.id}"
+
+        saleitems = Database.query(sql)[0]
+        
+        return saleitems['count']
     
     def json(self)-> dict:
         '''
@@ -47,7 +51,7 @@ class Sales(Model):
         return {
             "id": str(self.id),
             "total": self.total,
-            "items": self.items(),
+            "count": self.items_count(),
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }

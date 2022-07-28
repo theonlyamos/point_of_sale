@@ -20,7 +20,7 @@ class Model():
             if not updated_at else updated_at
         self.id = uuid.uuid4() if not id else str(id)
 
-    def add(self):
+    def save(self):
         '''
         Instance Method for saving Model instance to database
 
@@ -80,6 +80,33 @@ class Model():
 
         model = Database.find_one(cls.TABLE_NAME, {'id': _id})
         return cls(**model) if model else None
+    
+    @classmethod
+    def find(cls, params: dict)-> list:
+        '''
+        Class Method for retrieving models
+        by provided parameters
+
+        @param params
+        @return List[Model]
+        '''
+
+        return [cls(**elem) for elem in Database.find(cls.TABLE_NAME, params)]
+    
+    @classmethod
+    def search(cls, columnname: str, search: str):
+        '''
+        Class Method for retrieving products
+        by their names
+
+        @param name
+        @return Product Instance
+        '''
+
+        sql = f"SELECT * from {cls.TABLE_NAME} WHERE "
+        sql += f"{columnname} LIKE '%{search}%'"
+        
+        return [cls(**elem) for elem in Database.query(sql)]
     
     def json(self)-> Dict:
         '''

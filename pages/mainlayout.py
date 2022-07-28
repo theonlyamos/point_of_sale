@@ -9,9 +9,13 @@ from common import Database
 from models import Product
 from pages.products import ProductsPage
 from pages.dashboard import DashboardPage
+from pages.sales import SalesPage
 
 from io import BytesIO
 import os
+
+from assets import ChartAreaIcon, ShoppingCartIcon, ShoppingBasketIcon,\
+                    UsersIcon, ChartPieIcon, PlusIcon
 
 class MainLayoutPage():
     '''
@@ -22,18 +26,13 @@ class MainLayoutPage():
         self.window = window
     
     def build_assets(self):
-        self.assets = {'dashboard'  : {'name': 'chart-line.svg'},
-                       'products'   : {'name': 'shopping-basket.svg'},
-                       'users'      : {'name': 'users.svg'},
-                       'settings'   : {'name': 'chart-pie.svg'},
-                       'addButton'  : {'name': 'plus.svg'}}
-        
-        for key in self.assets.keys():
-            img_path = self.assets[key]['name']
-            img_io = BytesIO()
-            img_url = os.path.realpath(os.path.join(os.curdir, 'assets', img_path))
-            svg2png(url=img_url, write_to=img_io)
-            self.assets[key]['image'] = ImageTk.PhotoImage(Image.open(img_io).resize((50, 50)))
+        self.assets = {
+            'dashboard'  : ImageTk.PhotoImage(ChartAreaIcon.resize((50, 50))),
+            'sales'      : ImageTk.PhotoImage(ShoppingCartIcon.resize((50, 50))),
+            'products'   : ImageTk.PhotoImage(ShoppingBasketIcon.resize((50, 50))),
+            'users'      : ImageTk.PhotoImage(UsersIcon.resize((50, 50))),
+            'settings'   : ImageTk.PhotoImage(ChartPieIcon.resize((50, 50))),
+            'addButton'  : ImageTk.PhotoImage(PlusIcon.resize((50, 50)))}
     
     def initialize(self):
         '''
@@ -46,7 +45,7 @@ class MainLayoutPage():
 
         self.current_frame = self.dashboard
         self.sidebar_frame.pack(side='left', fill='none', anchor='n')
-        self.dashboard.pack(side='right', expand=1, fill='both')
+        self.current_frame.pack(side='right', expand=1, fill='both')
 
     def create_frames(self):
         '''
@@ -55,41 +54,37 @@ class MainLayoutPage():
          Users, Settings]
         '''
 
-        self.window.geometry("900x400")
+        self.window.geometry("950x500")
         self.window.title('Dashboard - Supermarket Billing System')
 
         self.sidebar_frame = ttk.Frame(
             self.window,
-            width=200,
-            height=400
+            width=200
+        )
+
+        self.sales = SalesPage(
+            self.window,
+            text='Sales'
         )
 
         self.dashboard = DashboardPage(
             self.window,
-            text='Dashboard',
-            width=700,
-            height=400
+            text='Dashboard'
         )
 
         self.products = ProductsPage(
             self.window,
-            text='Products',
-            width=700,
-            height=400
+            text='Products'
         )
 
         self.users_frame = ttk.LabelFrame(
             self.window,
-            text='Users',
-            width=700,
-            height=400
+            text='Users'
         )
 
         self.settings_frame = ttk.LabelFrame(
             self.window,
-            text='Settings',
-            width=700,
-            height=400
+            text='Settings'
         )
 
     def sidebar(self):
@@ -101,7 +96,7 @@ class MainLayoutPage():
         Button(
             self.sidebar_frame,
             text='Dashboard',
-            image=self.assets['dashboard']['image'],
+            image=self.assets['dashboard'],
             compound='top',
             activebackground='#da1039',
             font='monospace 13 bold',
@@ -110,8 +105,18 @@ class MainLayoutPage():
 
         Button(
             self.sidebar_frame,
+            text='Sales',
+            image=self.assets['sales'],
+            compound='top',
+            activebackground='#da1039',
+            font='monospace 13 bold',
+            command=lambda: self.change_page(self.sales)
+        ).pack(fill='x')
+
+        Button(
+            self.sidebar_frame,
             text='Products',
-            image=self.assets['products']['image'],
+            image=self.assets['products'],
             compound='top',
             activebackground='#da1039',
             font='monospace 13 bold',
@@ -121,7 +126,7 @@ class MainLayoutPage():
         Button(
             self.sidebar_frame,
             text='Users',
-            image=self.assets['users']['image'],
+            image=self.assets['users'],
             compound='top',
             activebackground='#da1039',
             font='monospace 13 bold',
@@ -131,7 +136,7 @@ class MainLayoutPage():
         Button(
             self.sidebar_frame,
             text='Settings',
-            image=self.assets['settings']['image'],
+            image=self.assets['settings'],
             compound='top',
             activebackground='#da1039',
             font='monospace 13 bold',

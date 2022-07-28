@@ -7,16 +7,13 @@ class Product(Model):
     TABLE_NAME = 'Products'
 
     def __init__(self, name, price, quantity, image, created_at=None, updated_at=None, id=None):
-        super().__init__()
+        super().__init__(created_at, updated_at, id)
         self.name = name
         self.price = price
         self.quantity = quantity
         self.image = image
-        self.created_at = created_at
-        self.updated_at = updated_at
-        self.id = id
 
-    def add(self):
+    def save(self):
         '''
         Instance Method for saving Product instance to database
 

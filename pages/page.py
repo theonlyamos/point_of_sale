@@ -5,6 +5,9 @@ from PIL import ImageTk, Image
 from io import BytesIO
 import os
 
+from assets import ChartAreaIcon, ShoppingCartIcon, ShoppingBasketIcon,\
+                    UsersIcon, ChartPieIcon, PlusIcon
+
 class Page(ttk.Frame):
     '''
     Initial Class for Pages Frame.
@@ -12,24 +15,19 @@ class Page(ttk.Frame):
     '''
 
     def __init__(self, master=None, **kw):
-        super().__init__()
+        super().__init__(master, **kw)
         self.build_assets
         self.content()
 
     def build_assets(self):
-        self.assets = {'dashboard'  : {'name': 'chart-line.svg'},
-                    'products'   : {'name': 'shopping-basket.svg'},
-                    'users'      : {'name': 'users.svg'},
-                    'settings'   : {'name': 'chart-pie.svg'},
-                    'addButton'  : {'name': 'plus.svg'}}
+        self.assets = {
+            'dashboard'  : ImageTk.PhotoImage(ChartAreaIcon.resize((50, 50))),
+            'sales'      : ImageTk.PhotoImage(ShoppingCartIcon.resize((50, 50))),
+            'products'   : ImageTk.PhotoImage(ShoppingBasketIcon.resize((50, 50))),
+            'users'      : ImageTk.PhotoImage(UsersIcon.resize((50, 50))),
+            'settings'   : ImageTk.PhotoImage(ChartPieIcon.resize((50, 50))),
+            'addButton'  : ImageTk.PhotoImage(PlusIcon.resize((50, 50)))}
         
-        for key in self.assets.keys():
-            img_path = self.assets[key]['name']
-            img_io = BytesIO()
-            img_url = os.path.realpath(os.path.join(os.curdir, 'assets', img_path))
-            svg2png(url=img_url, write_to=img_io)
-            self.assets[key]['image'] = ImageTk.PhotoImage(Image.open(img_io).resize((50, 50)))
-
     def content(self):
         pass
 
@@ -40,23 +38,18 @@ class LabelPage(ttk.LabelFrame):
     '''
 
     def __init__(self, master=None, **kw):
-        super().__init__()
+        super().__init__(master, **kw)
         self.build_assets()
         self.content()
 
     def build_assets(self):
-        self.assets = {'dashboard'  : {'name': 'chart-line.svg'},
-                    'products'   : {'name': 'shopping-basket.svg'},
-                    'users'      : {'name': 'users.svg'},
-                    'settings'   : {'name': 'chart-pie.svg'},
-                    'addButton'  : {'name': 'plus.svg'}}
-        
-        for key in self.assets.keys():
-            img_path = self.assets[key]['name']
-            img_io = BytesIO()
-            img_url = os.path.realpath(os.path.join(os.curdir, 'assets', img_path))
-            svg2png(url=img_url, write_to=img_io)
-            self.assets[key]['image'] = ImageTk.PhotoImage(Image.open(img_io).resize((50, 50)))
-    
+        self.assets = {
+            'dashboard'  : ImageTk.PhotoImage(ChartAreaIcon.resize((50, 50))),
+            'sales'      : ImageTk.PhotoImage(ShoppingCartIcon.resize((50, 50))),
+            'products'   : ImageTk.PhotoImage(ShoppingBasketIcon.resize((50, 50))),
+            'users'      : ImageTk.PhotoImage(UsersIcon.resize((50, 50))),
+            'settings'   : ImageTk.PhotoImage(ChartPieIcon.resize((50, 50))),
+            'addButton'  : ImageTk.PhotoImage(PlusIcon.resize((50, 50)))}
+
     def content(self):
         pass

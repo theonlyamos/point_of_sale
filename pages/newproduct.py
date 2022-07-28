@@ -6,6 +6,7 @@ from PIL import ImageTk, Image
 import os
 
 from models import Product
+from assets import AddImageIcon
 
 
 class AddProductPage(Toplevel):
@@ -28,7 +29,7 @@ class AddProductPage(Toplevel):
                 'quantity': self.new_product_quantity_var.get()}
         
         product = Product(**new_product)
-        result = product.add()
+        result = product.save()
         
         if result.isnumeric():
             product = (result, new_product['name'],
@@ -41,10 +42,8 @@ class AddProductPage(Toplevel):
     
 
     def content(self):
-        const_url = "add_img.png"
-        img_url = os.path.realpath(os.path.join(os.curdir, 'assets', const_url))
-        add_img = ImageTk.PhotoImage(Image.open(img_url).resize((60, 50)))
-
+        #add_img = ImageTk.PhotoImage(AddImageIcon.resize((50, 50)))
+        
         ttk.Label(
             self,
             text='Add Product',
@@ -55,8 +54,8 @@ class AddProductPage(Toplevel):
         Button(
             self,
             text='Product Image',
-            image=add_img,
-            compound='left',
+            #image=add_img,
+            compound='top',
             font='Arial 11'
         ).place(anchor='c', width=250, height=80, relx=0.5, rely=0.3)
 

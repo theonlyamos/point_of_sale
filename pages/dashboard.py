@@ -7,6 +7,7 @@ from PIL import ImageTk, Image
 from common import Database
 from models import Product
 from models import User
+from models import Sale
 
 from io import BytesIO
 import os
@@ -27,6 +28,7 @@ class DashboardPage(LabelPage):
         @return NOne
         '''
 
+        self.sales_count['text'] = Sale.count()
         self.products_count['text'] = Product.count()
         self.users_count['text'] = User.count()
 
@@ -41,6 +43,12 @@ class DashboardPage(LabelPage):
             height=150
         )
 
+        sales_card = ttk.LabelFrame(
+            self,
+            width=350,
+            height=150
+        )
+
         users_card = ttk.LabelFrame(
             self,
             width=350,
@@ -48,9 +56,27 @@ class DashboardPage(LabelPage):
         )
 
         ttk.Label(
+            sales_card,
+            text='Sales',
+            image=self.assets['sales'],
+            compound='top',
+            font='Helvetica 15',
+            foreground='#4f4f4f',
+            borderwidth=2
+        ).pack(side='left', padx=5)
+
+        self.sales_count = ttk.Label(
+            sales_card,
+            text='0',
+            foreground='#0052ea',
+            font='monospace 60'
+        )
+        self.sales_count.pack(side='right', padx=5)
+
+        ttk.Label(
             products_card,
             text='Products',
-            image=self.assets['products']['image'],
+            image=self.assets['products'],
             compound='top',
             font='Helvetica 15',
             foreground='#4f4f4f',
@@ -68,7 +94,7 @@ class DashboardPage(LabelPage):
         ttk.Label(
             users_card,
             text='Users',
-            image=self.assets['users']['image'],
+            image=self.assets['users'],
             compound='top',
             font='Helvetica 15',
             foreground='#4f4f4f',
@@ -84,7 +110,8 @@ class DashboardPage(LabelPage):
         
         self.users_count.pack(side='right', padx=5)
 
-        products_card.place(anchor='c', relx=0.4, rely=0.5)
-        users_card.place(anchor='c', relx=0.6, rely=0.5)
+        sales_card.place(anchor='c', relx=0.4, rely=0.4)
+        products_card.place(anchor='c', relx=0.6, rely=0.4)
+        users_card.place(anchor='c', relx=0.4, rely=0.65)
 
         self.after(5, self.populate)
