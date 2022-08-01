@@ -16,3 +16,10 @@ def generate_random_password():
     password = ''.join(result)
 
     return password
+
+def format_texts(text, type):
+    if type == "name":
+        return " "*5 + text.title() + (" " * (40 - len(text)))
+
+    else:
+        return text + (" " * (38 - len(text)))

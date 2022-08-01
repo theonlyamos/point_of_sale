@@ -1,11 +1,15 @@
-
+from posixpath import commonpath
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
+from tkinter.scrolledtext import ScrolledText
+from tokenize import Double
+
+from requests import delete
 
 from connection_handler import ConnectionHandler
 from PIL import ImageTk, Image
-from utils import generate_random_password
+from utils import format_texts, generate_random_password
 import os
 
 
@@ -611,267 +615,296 @@ class AdminPage:
 
 
 class CashierPage:
-  try:
-    conn = ConnectionHandler()
-    resp = conn.get_products()
-    images = [
-      ImageTk.PhotoImage(Image.open(x[3]).resize((200, 150)))
-      for x in resp["message"]
-    ]
-  except:
-    pass
+    try:
+        conn = ConnectionHandler()
+        resp = conn.get_products()
+        images = [
+            ImageTk.PhotoImage(Image.open(x[3]).resize((200, 150)))
+            for x in resp["message"]
+        ]
+    except:
+        pass
 
-  def __init__(self, app):
-    self.app = app
+    def __init__(self, app):
+        self.app = app
 
-  def cashier_page(self):
-    conn = ConnectionHandler()
-    resp = conn.get_products()
+    def cashier_page(self):
+        conn = ConnectionHandler()
+        resp = conn.get_products()
 
-    item_list = []
+        item_list = []
+        quantity_entries = []
+        items_purchased_list = {}
 
-    cashier_page_frame = Frame (
-      self.app,
-      width="1920",
-      height="1080"
-    )
-    scroller = Scrollbar(cashier_page_frame, orient=VERTICAL)
-    scroller.place(anchor="c", relx=0.7, rely=0.52, width=20, height=900)
-    entry_canvas = Canvas(
-        cashier_page_frame,
-        height=900,
-        width=1300,
-        yscrollcommand=scroller.set,
-    )
-    entry_canvas.place(anchor="c", relx=0.3, rely=0.52)
+        cashier_page_frame = Frame(self.app, width="1920", height="1080")
+        scroller = Scrollbar(cashier_page_frame, orient=VERTICAL)
+        scroller.place(anchor="c", relx=0.7, rely=0.52, width=20, height=900)
+        entry_canvas = Canvas(
+            cashier_page_frame,
+            height=900,
+            width=1300,
+            yscrollcommand=scroller.set,
+        )
+        entry_canvas.place(anchor="c", relx=0.3, rely=0.52)
 
-    entry_frame = Frame(
-        entry_canvas,
-        height=900,
-        width=1700,
-    )
-    entry_canvas.create_window((0, 0), window=entry_frame, anchor="c")
+        entry_frame = Frame(
+            entry_canvas,
+            height=900,
+            width=1700,
+        )
+        entry_canvas.create_window((0, 0), window=entry_frame, anchor="c")
 
-    entry_frame.bind(
-        "<Configure>", entry_canvas.configure(scrollregion=entry_canvas.bbox("all"))
-    )
+        entry_frame.bind(
+            "<Configure>", entry_canvas.configure(scrollregion=entry_canvas.bbox("all"))
+        )
 
-    scroller.config(command=entry_canvas.yview)
+        scroller.config(command=entry_canvas.yview)
 
-    if resp["status"] == "Success":
-      pointer = 0
-      mv_x = 0.4
-      mv_y = 0.15
-      for x in resp["message"]:
-        if pointer != 0 and pointer % 4 == 0:
-            mv_y += 0.4
+        if resp["status"] == "Success":
+            pointer = 0
             mv_x = 0.4
+            mv_y = 0.15
+            for x in resp["message"]:
+                if pointer != 0 and pointer % 4 == 0:
+                    mv_y += 0.4
+                    mv_x = 0.4
 
-        image = Label(
-            entry_frame,
-            image=self.images[pointer],
-            width=300,
-            height=200,
-        )
-        image.place(anchor="c", relx=mv_x, rely=mv_y)
-        name = Label(
-          entry_frame, 
-          text="Name: " + x[1], 
-          font="Arial 15"
-        )
-        name.place(anchor="c", relx=mv_x, rely=mv_y + 0.13)
-        price = Label(
-          entry_frame, 
-          text="Price: GHC " + str(x[2]), 
-          font="Arial 15"
-        )
-        price.place(anchor="c", relx=mv_x, rely=mv_y + 0.16)
-        quantity = Label(
-          entry_frame, 
-          text="Quantity: ", 
-          font="Times 15"
-        )
-        quantity.place(anchor="c", relx=mv_x-0.03, rely=mv_y + 0.20)
-        quantity_entry = Entry(
-          entry_frame, 
-          font="Times 15",
-          width=8
-        )
-        quantity_entry.place(anchor="c", relx=mv_x+0.02, rely=mv_y + 0.20)
-        add_btn = Button(
-          entry_frame,
-          text="Add",
-          bg="blue",
-          fg="white"
-        )
-        add_btn.place(anchor="c", relx=mv_x-0.04, rely=mv_y + 0.25)
-        reset_btn = Button(
-          entry_frame,
-          text="Reset",
-          bg="red",
-          fg="white"
-        )
-        reset_btn.place(anchor="c", relx=mv_x+0.03, rely=mv_y + 0.25)
+                image = Label(
+                    entry_frame,
+                    image=self.images[pointer],
+                    width=300,
+                    height=200,
+                )
+                image.place(anchor="c", relx=mv_x, rely=mv_y)
+                name = Label(entry_frame, text="Name: " + x[1], font="Arial 15")
+                name.place(anchor="c", relx=mv_x, rely=mv_y + 0.13)
+                price = Label(
+                    entry_frame, text="Price: GHC " + str(x[2]), font="Arial 15"
+                )
+                price.place(anchor="c", relx=mv_x, rely=mv_y + 0.16)
+                quantity = Label(entry_frame, text="Quantity: ", font="Times 15")
+                quantity.place(anchor="c", relx=mv_x - 0.03, rely=mv_y + 0.20)
+                quantity_entry = Entry(entry_frame, font="Times 15", width=8)
+                quantity_entry.place(anchor="c", relx=mv_x + 0.02, rely=mv_y + 0.20)
+                quantity_entries.append(quantity_entry)
 
-        def handle_delete(id):
-            conn = ConnectionHandler()
-            resp = conn.delete_user(int(id))
+                def add_purchase(name, price, id):
+                    
+                    item_no = quantity_entries[id].get()
+                    cost = int(item_no) * float(price)
 
-            if resp["status"] == "Success":
-                messagebox.showinfo("Status", "Product deleted successfully")
-                cashier_page_frame.place_forget()
-                self.homepage()
-            else:
-                messagebox.showerror("Status", "An error occurred")
+                    if name in items_purchased_list.keys():
+                      name_index = list(items_purchased_list.keys()).index(name)
+                      start_index = 1.0 + (0.3 * name_index)
+                      end_index = start_index + 0.3
+                      purchases.delete(str(start_index), str(end_index))
+                      amount_purchased_entry_var.set(
+                        amount_purchased_entry_var.get() - items_purchased_list[name]
+                      )
+                      items_purchased_list[name] = cost
 
+                    else:
+                      items_purchased_list[name] = cost
 
-        item_list.append(image)
-        pointer += 1
-        mv_x += 0.18
+                    items_no_entry_var.set(len(items_purchased_list))
 
-      right_frame = Frame(
-        cashier_page_frame,
-        width=560,
-        height=1080
-      )
+                    amount_purchased_entry_var.set(
+                      amount_purchased_entry_var.get() + cost
+                    )
+                    item_title = Label(
+                        purchases,
+                        text=format_texts(name, "name"),
+                        font="Arial 12",
+                        bg="white",
+                    )
+                    quantity_title = Label(
+                        purchases,
+                        text=format_texts(str(item_no), "quantity"),
+                        font="Arial 12",
+                        bg="white",
+                    )
+                    cost_title = Label(
+                        purchases,
+                        text=str(cost),
+                        font="Arial 12",
+                        bg="white",
+                    )
+                    purchases.window_create("end", window=item_title)
+                    purchases.window_create("end", window=quantity_title)
+                    purchases.window_create("end", window=cost_title)
 
+                add_btn = Button(
+                    entry_frame,
+                    text="Add",
+                    bg="blue",
+                    fg="white",
+                    command=lambda name=x[1], id=pointer, price=x[2]: add_purchase(
+                        name, price, id
+                    ),
+                )
+                add_btn.place(anchor="c", relx=mv_x - 0.04, rely=mv_y + 0.25)
 
-      item_purchased_frame = Frame(
-        right_frame,
-        width=1000,
-        height=700,
-      )
+                def reset_entry(id):
+                    quantity_entries[id].delete(0, END)
 
-      Label(
-        item_purchased_frame,
-        text="Item Purchased",
-        font="Times 15"
-      ).place(anchor="c", relx=0.5, rely=0.1)
-      
-      item_purchased_scroller = Scrollbar(item_purchased_frame, orient=VERTICAL)
-      item_purchased_scroller.place(anchor="c", relx=0.77, rely=0.57, width=20, height=600)
-      item_purchased_canvas = Canvas(
-          item_purchased_frame,
-          height=600,
-          width=500,
-          yscrollcommand=item_purchased_scroller.set,
-      )
-      item_purchased_canvas.place(anchor="c", relx=0.5, rely=0.57)
+                reset_btn = Button(
+                  entry_frame, 
+                  text="Reset", 
+                  bg="red", 
+                  fg="white",
+                  command=lambda id=pointer: reset_entry(id)
+                )
+                reset_btn.place(anchor="c", relx=mv_x + 0.03, rely=mv_y + 0.25)
 
-      item_purchased_content = Frame(
-        item_purchased_canvas,
-        height=600,
-        width=500,
-        bg='white'
-      )
+                item_list.append(image)
+                pointer += 1
+                mv_x += 0.18
 
-      Label(
-        item_purchased_content,
-        text="Item Name",
-        font="Arial 15 bold",
-        fg="black",
-        bg="white"
-      ).place(anchor="c", relx=0.15, rely=0.05)
+            right_frame = Frame(cashier_page_frame, width=560, height=1080)
 
-      Label(
-        item_purchased_content,
-        text="Quantity",
-        font="Arial 15 bold",
-        fg="black",
-        bg="white"
-      ).place(anchor="c", relx=0.5, rely=0.05)
+            item_purchased_frame = Frame(
+                right_frame,
+                width=1000,
+                height=700,
+            )
 
-      Label(
-        item_purchased_content,
-        text="Amount",
-        font="Arial 15 bold",
-        fg="black",
-        bg="white"
-      ).place(anchor="c", relx=0.8, rely=0.05)
+            Label(item_purchased_frame, text="Item Purchased", font="Times 15").place(
+                anchor="c", relx=0.5, rely=0.1
+            )
 
-      item_purchased_canvas.create_window((0, 0), window=item_purchased_content, anchor="c")
+            item_purchased_content = Frame(
+                item_purchased_frame, height=600, width=500, bg="white"
+            )
 
-      item_purchased_content.bind(
-          "<Configure>", item_purchased_canvas.configure(scrollregion=item_purchased_canvas.bbox("all"))
-      )
+            Label(
+                item_purchased_content,
+                text="Item Name",
+                font="Arial 15 bold",
+                fg="black",
+                bg="white",
+            ).place(anchor="c", relx=0.15, rely=0.05)
 
-      item_purchased_scroller.config(command=item_purchased_canvas.yview)
+            Label(
+                item_purchased_content,
+                text="Quantity",
+                font="Arial 15 bold",
+                fg="black",
+                bg="white",
+            ).place(anchor="c", relx=0.5, rely=0.05)
 
-      item_purchased_frame.place(anchor="n", relx=0.5, rely=0)
-      
-      item_checkout_frame = Frame(
-        right_frame,
-        width=1300,
-        height=340,
-      )
+            Label(
+                item_purchased_content,
+                text="Amount",
+                font="Arial 15 bold",
+                fg="black",
+                bg="white",
+            ).place(anchor="c", relx=0.8, rely=0.05)
+            item_purchased_content.place(anchor="c", relx=0.5, rely=0.5)
+            item_purchased_frame.place(anchor="n", relx=0.5, rely=0)
 
-      Label(
-        item_checkout_frame,
-        text="Amount Purchased: ",
-        font="Arial 18 bold"
-      ).place(anchor="w", relx=0.3, rely=0.1)
-      
-      Entry(
-        item_checkout_frame,
-        width=15,
-        font="Arial 15 bold",
-      ).place(anchor="w", relx=0.55, rely=0.1, height=30)
+            purchases = ScrolledText(
+                item_purchased_content, width=60, height=32, font="Times 12"
+            )
+            purchases.place(anchor="c", relx=0.5, rely=0.54)
 
-      Label(
-        item_checkout_frame,
-        text="Total Number of Items: ",
-        font="Arial 18 bold"
-      ).place(anchor="w", relx=0.3, rely=0.25)
+            item_checkout_frame = Frame(
+                right_frame,
+                width=1300,
+                height=340,
+            )
 
-      Entry(
-        item_checkout_frame,
-        width=15,
-        font="Arial 15 bold",
-      ).place(anchor="w", relx=0.55, rely=0.25, height=30)
+            Label(
+                item_checkout_frame, text="Amount Purchased: ", font="Arial 18 bold"
+            ).place(anchor="w", relx=0.3, rely=0.1)
+            
+            amount_purchased_entry_var = DoubleVar()
+            amount_purchased_entry = Entry(
+              item_checkout_frame,
+              width=15,
+              font="Arial 15 bold",
+              text=amount_purchased_entry_var
+            )
+            amount_purchased_entry.place(anchor="w", relx=0.55, rely=0.1, height=30)
 
-      Label(
-        item_checkout_frame,
-        text="Paid: ",
-        font="Arial 18 bold",
-      ).place(anchor="w", relx=0.3, rely=0.4)
-      
-      Entry(
-        item_checkout_frame,
-        width=15,
-        font="Arial 15 bold",
-      ).place(anchor="w", relx=0.55, rely=0.4, height=30)
+            Label(
+                item_checkout_frame,
+                text="Total Number of Items: ",
+                font="Arial 18 bold",
+            ).place(anchor="w", relx=0.3, rely=0.25)
 
-      Label(
-        item_checkout_frame,
-        text="Balance: ",
-        font="Arial 18 bold"
-      ).place(anchor="w", relx=0.3, rely=0.55)
-      
-      Entry(
-        item_checkout_frame,
-        width=15,
-        font="Arial 15 bold",
-      ).place(anchor="w", relx=0.55, rely=0.55, height=30)
+            items_no_entry_var = IntVar()
+            items_no_entry = Entry(
+                item_checkout_frame,
+                width=15,
+                font="Arial 15 bold",
+                textvariable=items_no_entry_var
+            )
+            items_no_entry.place(anchor="w", relx=0.55, rely=0.25, height=30)
 
-      Button(
-        item_checkout_frame,
-        text="Checkout",
-        font="Arial 18",
-        bg="blue",
-        fg="white"
-      ).place(anchor="c", relx=0.45, rely=0.75)
-      
-      Button(
-        item_checkout_frame,
-        text="Reset",
-        font="Arial 18",
-        bg="red",
-        fg="white"
-      ).place(anchor="c", relx=0.55, rely=0.75)
+            Label(
+                item_checkout_frame,
+                text="Paid: ",
+                font="Arial 18 bold",
+            ).place(anchor="w", relx=0.3, rely=0.4)
 
-      item_checkout_frame.place(anchor="c", relx=0.5, rely=0.81)
-      right_frame.place(anchor="w", relx=0.705, rely=0.5)
-    cashier_page_frame.place(anchor="c", relx=0.5, rely=0.5)
+            paid_entry_var = DoubleVar()
+            paid_entry = Entry(
+                item_checkout_frame,
+                width=15,
+                font="Arial 15 bold",
+                textvariable=paid_entry_var
+            )
+            paid_entry.place(anchor="w", relx=0.55, rely=0.4, height=30)
+
+            Label(item_checkout_frame, text="Balance: ", font="Arial 18 bold").place(
+                anchor="w", relx=0.3, rely=0.55
+            )
+
+            balance_entry_var = DoubleVar()
+            balance_entry = Entry(
+                item_checkout_frame,
+                width=15,
+                font="Arial 15 bold",
+                textvariable=balance_entry_var
+            )
+            balance_entry.place(anchor="w", relx=0.55, rely=0.55, height=30)
+
+            def checkout():
+              balance_entry_var.set(
+                paid_entry_var.get() - amount_purchased_entry_var.get()
+              )
+
+            Button(
+                item_checkout_frame,
+                text="Checkout",
+                font="Arial 18",
+                bg="blue",
+                fg="white",
+                command=checkout
+            ).place(anchor="c", relx=0.45, rely=0.75)
+
+            def reset_page():
+              purchases.delete("1.0", END)
+              amount_purchased_entry_var.set(0.0)
+              paid_entry_var.set(0.0)
+              items_no_entry_var.set(0.0)
+              balance_entry_var.set(0.0)
+              for x in quantity_entries:
+                x.delete(0, END)
+
+            Button(
+                item_checkout_frame, 
+                text="Reset", 
+                font="Arial 18", 
+                bg="red", 
+                fg="white",
+                command=reset_page
+            ).place(anchor="c", relx=0.55, rely=0.75)
+
+            item_checkout_frame.place(anchor="c", relx=0.5, rely=0.81)
+            right_frame.place(anchor="w", relx=0.705, rely=0.5)
+        cashier_page_frame.place(anchor="c", relx=0.5, rely=0.5)
+
 
 def login(role):
     global handler
@@ -910,7 +943,6 @@ def login(role):
     )
 
     login_handler.place(anchor="c", relx=0.5, rely=0.5)
-
 
 
 handler = Frame(supermarket_app, width="1920", height="1080")
