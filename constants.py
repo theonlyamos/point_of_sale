@@ -1,10 +1,6 @@
 
-# HOST = "localhost"
-# USER = "posdeveloper"
-# # PASSWORD=""
-# PASSWORD="pos#123"
-
 HOST = "localhost"
-USER = "root"
+USER = "posdeveloper"
 # PASSWORD=""
-PASSWORD="Fulerasey@123"
+PASSWORD="pos#123"
+
