@@ -6,6 +6,7 @@ from PIL import ImageTk, Image
 import os
 
 from models import Product
+from common import session
 
 
 class UpdateProductPage(Toplevel):
@@ -128,7 +129,8 @@ class UpdateProductPage(Toplevel):
             foreground='white',
             activeforeground='white',
             font='monospace 13 bold',
-            command=self.update_product
+            command=self.update_product,
+            state='normal' if session.user.is_admin() else 'disabled'
         ).place(anchor='c', width=250, height=45, relx=0.5, rely=0.86)
     
     def show(self):

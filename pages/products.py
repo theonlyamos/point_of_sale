@@ -10,6 +10,7 @@ import os
 from pages import LabelPage
 from models import Product
 from assets import AddImageIcon
+from common import session
 
 from pages.newproduct import AddProductPage
 from pages.updateproduct import UpdateProductPage
@@ -24,20 +25,23 @@ class ProductsPage(LabelPage):
                                     values=product)
     
     def populate_products_table(self):
-        self.products_list = Product.get()
+        self.products_list = Product.from_csv('Products.csv')
+        #self.products_list = [Product(**prod) for prod in Product.order_by('updated_at').get()]
         self.last_product_id = 0
         
         if type(self.products_list) is list:
-            self.products_count['text'] = len(self.products_list)
+            self.update_products_count()
             
             for product in self.products_list:
                 self.last_product_id =  self.products_list.index(product)
                 
-                prod = (product.id, product.name, product.price, product.quantity)
+                prod = (product.id, product.name, product.price, product.quantity, product.updated_at)
                 self.update_products_table(prod)
-                
         else:
             print(self.products_list)
+    
+    def update_products_count(self):
+        self.products_count['text'] = len(self.products_list)
     
     def add_product_window(self):
         product_window = AddProductPage(
@@ -45,9 +49,10 @@ class ProductsPage(LabelPage):
         )
         product = product_window.show()
         if product:
-            self.last_product_id = int(product[0])
-            self.products_count['text'] = str(int(product[0]))
-            self.update_products_table(product)
+            self.products_list.append(product)
+            self.update_products_count()
+            self.update_products_table((product.id, product.name, product.price,
+                                product.quantity, product.updated_at))
     
     def update_product(self):
         if len(self.products_table.selection()):
@@ -113,6 +118,10 @@ class ProductsPage(LabelPage):
             tools_frame
         )
 
+        products_frame = ttk.Frame(
+            self
+        )
+
         ttk.Label(
             products_card,
             text='Products',
@@ -131,7 +140,7 @@ class ProductsPage(LabelPage):
         )
         self.products_count.grid(column=1, row=0, padx=10)
 
-        products_card.grid(column=0, row=0, sticky='nw')
+        products_card.grid(column=0, row=0, padx=10, sticky='nw')
 
         self.product_search_var = StringVar()
         self.product_search_var.set('Product Search')
@@ -145,49 +154,55 @@ class ProductsPage(LabelPage):
         )
         self.product_search_entry.bind('<FocusIn>', lambda ev: self.product_search_var.set(''))
         self.product_search_entry.bind('<KeyRelease>', self.search_products)
-        self.product_search_entry.grid(column=1, row=1, padx=15, ipady=5)
+        self.product_search_entry.grid(column=0, row=1, padx=10, ipady=5)
 
-        Button(
-            tools_frame,
-            text='Add Product',
-            command=self.add_product_window
-        ).grid(column=2, row=1, padx=15)
+        if session.user.is_admin() is True:
+            Button(
+                tools_frame,
+                text='Add Product',
+                command=self.add_product_window
+            ).grid(column=1, row=1, padx=10)
 
-        Button(
-            tools_frame,
-            text='Update Product',
-            command=self.update_product
-        ).grid(column=3, row=1, padx=15)
+            Button(
+                tools_frame,
+                text='Update Product',
+                command=self.update_product
+            ).grid(column=2, row=1, padx=10)
 
-        Button(
-            tools_frame,
-            text='Delete Product',
-            command=self.delete_product
-        ).grid(column=4, row=1, padx=15)
+            Button(
+                tools_frame,
+                text='Delete Product',
+                command=self.delete_product,
+                state='normal' if session.user.is_admin() else 'disabled'
+            ).grid(column=3, row=1, padx=10)
 
-        tools_frame.grid(column=0, columnspan=5, row=1, padx=10, pady=5, sticky='nw')
+        tools_frame.grid(column=0, columnspan=5, row=1, pady=5, sticky='nw')
 
-        self.products_table = ttk.Treeview(self, height=14)
+        self.products_table = ttk.Treeview(products_frame, height=14)
         self.products_table['columns'] = ('item_id', 'item_name', 'item_price',
-                                     'item_quantity')
+                                     'item_quantity', 'date')
         self.products_table.column('#0', width=0, stretch=NO)
-        self.products_table.column('item_id', anchor=CENTER)
+        self.products_table.column('item_id', width=0, stretch=NO)
         self.products_table.column('item_name', anchor=CENTER)
         self.products_table.column('item_price', anchor=CENTER)
         self.products_table.column('item_quantity', anchor=CENTER)
+        self.products_table.column('date', anchor=CENTER)
 
         self.products_table.heading('#0', text='', anchor=CENTER)
-        self.products_table.heading('item_id', text='ID', anchor=CENTER)
+        self.products_table.heading('item_id', text='', anchor=CENTER)
         self.products_table.heading('item_name', text='Name', anchor=CENTER)
         self.products_table.heading('item_price', text='Price', anchor=CENTER)
         self.products_table.heading('item_quantity', text='In Stock', anchor=CENTER)
+        self.products_table.heading('date', text='Date', anchor=CENTER)
 
         #self.products_table.bind("<<TreeviewSelect>>", self.update_product)
-        self.products_table.grid(column=0, row=2, sticky='nsew')
+        self.products_table.grid(column=0, row=0, sticky='nsew')
 
-        self.scrollbar = ttk.Scrollbar(self, orient='vertical', command=self.products_table.yview)
+        self.scrollbar = ttk.Scrollbar(products_frame, orient='vertical', command=self.products_table.yview)
         self.products_table.configure(yscrollcommand=self.scrollbar.set)
-        self.scrollbar.grid(column=1, row=2, sticky='ns')
+        self.scrollbar.grid(column=1, row=0, sticky='ns')
+
+        products_frame.grid(column=0, row=2, pady=5, padx=10, sticky='s')
 
         self.after(5, self.populate_products_table)
 

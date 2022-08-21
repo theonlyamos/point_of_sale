@@ -71,12 +71,11 @@ class AddSalePage(Toplevel):
             for item in self.saleitems:
                 saleitem = SaleItem(sale_id, item[0], item[2], item[3])
                 saleitem.save()
+                product = Product.get(item[0])
+                quantity = product.quantity - int(item[2])
+                Product.update(item[0], {'quantity': quantity})
 
-            sale = Sale.get(sale_id)
-            sale = sale.json()
-
-            self.new_sale = (sale['id'], sale['count'], 
-                            sale['total'], sale['updated_at'])
+            self.new_sale = Sale.get(sale_id)
 
         self.destroy()
 

@@ -106,18 +106,31 @@ class Database:
     
     @staticmethod
     def count(table: str, params: dict = {}):
-        query = f'SELECT * FROM {table}'
+        query = f'SELECT COUNT(*) as count FROM {table}'
 
         if len(params.keys()):
             query += ' WHERE '
             for key in params.keys():
                 query += f"{key}='{params[key]}'"
-
+        
         try:
             Database.cursor.execute(query, None)
             Database.db.commit()
 
-            return Database.cursor.rowcount
+            return Database.cursor.fetchall()[0]['count']
+
+        except Exception as e:
+            return {'status': 'Error', 'message': str(e)}
+        
+    @staticmethod
+    def sum(table: str, column: str):
+        query = f'SELECT SUM({column}) as sum FROM {table}'
+        
+        try:
+            Database.cursor.execute(query, None)
+            Database.db.commit()
+
+            return Database.cursor.fetchall()[0]['sum']
 
         except Exception as e:
             return {'status': 'Error', 'message': str(e)}

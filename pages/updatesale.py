@@ -22,7 +22,7 @@ class UpdateSalePage(Toplevel):
         super().__init__(master, **kw)
         self.sale = sale
         self.title('Update Sale')
-        self.geometry("600x500")
+        self.geometry("600x510")
         self.updated_sale = None
         self.saleitems = []
         self.content()
@@ -87,7 +87,7 @@ class UpdateSalePage(Toplevel):
             sale = Sale.get(self.sale.id)
             sale = sale.json()
 
-            self.updated_sale = (sale['id'], sale['count'], 
+            self.updated_sale = (sale['id'],sale['salesperson']['username'], sale['count'], 
                             sale['total'], sale['updated_at'])
 
         self.destroy()

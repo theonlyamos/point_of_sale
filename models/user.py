@@ -1,6 +1,6 @@
 from common import Database
 from common import Utils
-from models import Model
+from models.model import Model
 
 
 from common import Database
@@ -33,6 +33,9 @@ class User(Model):
         }
 
         return Database.insert(User.TABLE_NAME, data)
+    
+    def is_admin(self):
+        return self.role == 'admin'
     
     @classmethod
     def get_by_username(cls, username: str):

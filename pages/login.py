@@ -3,15 +3,17 @@ from tkinter import ttk
 from tkinter import messagebox
 
 from pages.mainlayout import MainLayoutPage
-from common import authenticate, identity
+from common import authenticate, session
 
 class LoginPage():
     '''
     Login Page
     '''
 
-    def __init__(self, window):
+    def __init__(self, window, x: float, y: float):
         self.window = window
+        self.positionX = x 
+        self.positionY = y
         #self.initialize()
     
     def initialize(self):
@@ -19,7 +21,12 @@ class LoginPage():
         Initialize Page Contents
         '''
 
-        self.window.geometry("400x450")
+        width = 400
+        height = 500
+
+        positionY = self.positionY-(height/3.5)
+
+        self.window.geometry("%dx%d+%d+%d"%(width, height, self.positionX,positionY))
         self.window.title('LOGIN - Supermarket Billing System')
         self.frame = Frame(
             self.window,
@@ -50,6 +57,7 @@ class LoginPage():
         ).place(anchor='c', relx=0.5, rely=0.3)
 
         self.role_var = StringVar()
+        self.role_var.set('admin')
         role_select = ttk.Combobox(
             self.frame,
             textvariable=self.role_var,
@@ -70,11 +78,13 @@ class LoginPage():
         ).place(anchor='c', relx=0.5, rely=0.46)
 
         self.username_var = StringVar()
+        self.username_var.set('theonlyamos')
         ttk.Entry(
             self.frame,
             textvariable=self.username_var,
             foreground='#4e4e4e',
-            font='monospace 10'
+            font='monospace 10',
+            justify='center'
         ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.52)
 
         ttk.Label(
@@ -86,12 +96,14 @@ class LoginPage():
         ).place(anchor='c', relx=0.5, rely=0.63)
 
         self.password_var = StringVar()
+        self.password_var.set('S0cr4t3s')
         ttk.Entry(
             self.frame,
             textvariable=self.password_var,
             foreground='#4e4e4e',
             font='monospace 10',
             show='*',
+            justify='center'
         ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.69)
 
         Button(
@@ -104,13 +116,17 @@ class LoginPage():
             font='monospace 13 bold',
             command=self.authenticate
         ).place(anchor='c', width=250, height=45, relx=0.5, rely=0.8)
+
+        self.mainlayout = MainLayoutPage(self.window, self.positionX, self.positionY)
+        self.authenticate()
     
     def authenticate(self):
-        global identity
-        user = authenticate(self.username_var.get(), self.password_var.get(), self.role_var.get())
-        if user:
-            identity = user
-            mainlayout = MainLayoutPage(self.window)
-            mainlayout.initialize()
-        else:
-            messagebox.showerror('Error', 'Invalid username or password')
+        global session
+
+        if not self.mainlayout.is_initialized:
+            user = authenticate(self.username_var.get(), self.password_var.get(), self.role_var.get())
+            if user:
+                session['user'] = user
+                self.mainlayout.initialize()
+            else:
+                messagebox.showerror('Error', 'Invalid login credentials!!!')

@@ -1,6 +1,6 @@
 from common import Database
-from models import Model
-from models import SaleItem
+from models.model import Model
+from models.saleitem import SaleItem
 
 class Sale(Model):
     '''A model class for Sales'''
@@ -40,6 +40,20 @@ class Sale(Model):
         
         return saleitems['count']
     
+    def salesperson(self)-> dict:
+        '''
+        Instance Method for salesperson for current sale
+
+        @params None
+        @return dict Database result
+        '''
+
+        sql = f"SELECT * FROM Users WHERE id={self.user_id}"
+        user = Database.query(sql)[0]
+        if user:
+            del user['password']
+        return user
+    
     def json(self)-> dict:
         '''
         Instance Method for converting Sales Instance to Dict
@@ -51,6 +65,7 @@ class Sale(Model):
         return {
             "id": str(self.id),
             "total": self.total,
+            "salesperson": self.salesperson(),
             "count": self.items_count(),
             "created_at": self.created_at,
             "updated_at": self.updated_at

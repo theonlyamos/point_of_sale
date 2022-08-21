@@ -4,6 +4,7 @@ from tkinter import messagebox
 from PIL import ImageTk, Image
 
 import os
+from datetime import datetime
 
 from models import Product
 from assets import AddImageIcon
@@ -32,10 +33,7 @@ class AddProductPage(Toplevel):
         result = product.save()
         
         if result.isnumeric():
-            product = (result, new_product['name'],
-                new_product['price'], new_product['quantity'])
-            
-            self.new_product = product
+            self.new_product = Product.get(result)
         else:
             messagebox.showerror('Error Message', result['message'])
         self.destroy()

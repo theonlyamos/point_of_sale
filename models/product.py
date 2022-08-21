@@ -6,7 +6,7 @@ class Product(Model):
     '''A model class for Products'''
     TABLE_NAME = 'Products'
 
-    def __init__(self, name, price, quantity, image, created_at=None, updated_at=None, id=None):
+    def __init__(self, name: str, price: float, quantity=100, image: str = '', created_at=None, updated_at=None, id=None):
         super().__init__(created_at, updated_at, id)
         self.name = name
         self.price = price

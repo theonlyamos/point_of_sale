@@ -6,10 +6,13 @@ from cairosvg import svg2png
 from PIL import ImageTk, Image
 
 from common import Database
+from common import session
 from models import Product
 from pages.products import ProductsPage
 from pages.dashboard import DashboardPage
 from pages.sales import SalesPage
+from pages.users import UsersPage
+from pages.statistics import StatisticsPage
 
 from io import BytesIO
 import os
@@ -22,8 +25,11 @@ class MainLayoutPage():
     Main Layout Page
     '''
 
-    def __init__(self, window):
+    def __init__(self, window, x, y):
         self.window = window
+        self.positionX = x
+        self.positionY = y
+        self.is_initialized = False
     
     def build_assets(self):
         self.assets = {
@@ -47,6 +53,8 @@ class MainLayoutPage():
         self.sidebar_frame.pack(side='left', fill='none', anchor='n')
         self.current_frame.pack(side='right', expand=1, fill='both')
 
+        self.is_initialized = True
+
     def create_frames(self):
         '''
         Create Main Page Frames
@@ -54,7 +62,13 @@ class MainLayoutPage():
          Users, Settings]
         '''
 
-        self.window.geometry("950x500")
+        width = 950
+        height = 500
+
+        positionX = self.positionX-(width/3.5)
+        positionY = self.positionY-(height/3.5)
+
+        self.window.geometry("%dx%d+%d+%d"%(width, height, positionX, positionY))
         self.window.title('Dashboard - Supermarket Billing System')
 
         self.sidebar_frame = ttk.Frame(
@@ -77,14 +91,14 @@ class MainLayoutPage():
             text='Products'
         )
 
-        self.users_frame = ttk.LabelFrame(
+        self.users_frame = UsersPage(
             self.window,
             text='Users'
         )
 
-        self.settings_frame = ttk.LabelFrame(
+        self.statistics_frame = StatisticsPage(
             self.window,
-            text='Settings'
+            text='Statistics'
         )
 
     def sidebar(self):
@@ -135,15 +149,17 @@ class MainLayoutPage():
 
         Button(
             self.sidebar_frame,
-            text='Settings',
+            text='Statistics',
             image=self.assets['settings'],
             compound='top',
             activebackground='#da1039',
             font='monospace 13 bold',
-            command=lambda: self.change_page(self.settings_frame)
+            state='normal' if session.user.is_admin() else 'disabled',
+            command=lambda: self.change_page(self.statistics_frame)
         ).pack(fill='x')
 
     def change_page(self, next_frame):
         self.current_frame.pack_forget()
         self.current_frame = next_frame
+        self.current_frame.event_generate('<<OnPacked>>', when='tail')
         self.current_frame.pack(side='right', expand=1, fill='both')

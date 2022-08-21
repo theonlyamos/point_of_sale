@@ -4,7 +4,8 @@ from tkinter import messagebox
 from cairosvg import svg2png
 from PIL import ImageTk, Image
 
-from common import Database
+from common import session
+from common.database import Database
 from models import Product
 from models import User
 from models import Sale
@@ -19,7 +20,7 @@ class DashboardPage(LabelPage):
     Dashboard Page
     '''
 
-    def populate(self):
+    def populate(self, event=None):
         '''
         Instance Method for retrieving count of 
         products and users
@@ -28,9 +29,12 @@ class DashboardPage(LabelPage):
         @return NOne
         '''
 
-        self.sales_count['text'] = Sale.count()
+        self.sales_count['text'] = Database.query('Select SUM(total) AS total FROM Sales')[0]['total']
         self.products_count['text'] = Product.count()
-        self.users_count['text'] = User.count()
+        if session.user.is_admin() is True:
+            self.users_count['text'] = str(User.count())
+        else:
+            self.users_count['text'] = str(User.count({'role': 'cashier'}))
 
     def content(self):
         ''''
@@ -110,8 +114,9 @@ class DashboardPage(LabelPage):
         
         self.users_count.pack(side='right', padx=5)
 
-        sales_card.place(anchor='c', relx=0.4, rely=0.4)
-        products_card.place(anchor='c', relx=0.6, rely=0.4)
+        sales_card.place(anchor='c', relx=0.525, rely=0.4)
+        products_card.place(anchor='c', relx=0.6, rely=0.65)
         users_card.place(anchor='c', relx=0.4, rely=0.65)
 
+        self.bind('<<OnPacked>>', self.populate)
         self.after(5, self.populate)

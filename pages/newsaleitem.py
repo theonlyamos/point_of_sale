@@ -69,7 +69,8 @@ class AddSaleItemPage(Toplevel):
             textvariable=self.product_name_var,
             foreground='#4e4e4e',
             font='monospace 10',
-            justify='center'
+            justify='center',
+            state='readonly'
         ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.36)
 
         ttk.Label(
@@ -85,7 +86,8 @@ class AddSaleItemPage(Toplevel):
             textvariable=self.product_total_var,
             foreground='#4e4e4e',
             font='monospace 10',
-            justify='center'
+            justify='center',
+            state='readonly'
         ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.52)
 
         ttk.Label(

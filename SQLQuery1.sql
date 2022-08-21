@@ -49,7 +49,7 @@ create table Sales
   user_id INT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  CONSTRAINT fk_sales_cashier FOREIGN KEY(user_id) REFERENCES Users(id)
+  CONSTRAINT fk_sales_cashier FOREIGN KEY(user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
 create table SaleItems
@@ -61,12 +61,12 @@ create table SaleItems
   total DECIMAL(10,2) NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  CONSTRAINT fk_solditem_sales FOREIGN KEY(sales_id) REFERENCES Sales(id),
-  CONSTRAINT fk_solditem_product FOREIGN KEY(product_id) REFERENCES Products(id)
+  CONSTRAINT fk_solditem_sales FOREIGN KEY(sales_id) REFERENCES Sales(id) ON DELETE CASCADE,
+  CONSTRAINT fk_solditem_product FOREIGN KEY(product_id) REFERENCES Products(id) ON DELETE CASCADE
 );
 
 INSERT INTO Users(username, name, role, password) 
-  VALUES ("theonlyamos", "Amos Amissah", "cashier",
+  VALUES ("theonlyamos", "Amos Amissah", "admin",
   "$pbkdf2-sha512$25000$3Lv3Psc4Z8zZWytF6N17jw$XL/WQbgMMjDD9gyAngOB4LgfJI/ACC3UyooBvTt3SE/qUia14UiA9d50HdlAw8PHfnZSycXX2DHAb5bnbv0y5g");
 
 INSERT INTO Users(username, name, role, password) 
