@@ -1,10 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-from cairosvg import svg2png
-from PIL import ImageTk, Image
+from tkinter import filedialog
+from PIL import ImageTk
 
-from io import BytesIO
 import os
 
 from pages import LabelPage
@@ -25,8 +24,8 @@ class ProductsPage(LabelPage):
                                     values=product)
     
     def populate_products_table(self):
-        self.products_list = Product.from_csv('Products.csv')
-        #self.products_list = [Product(**prod) for prod in Product.order_by('updated_at').get()]
+        #self.products_list = Product.from_csv('Products.csv')
+        self.products_list = [Product(**prod) for prod in Product.order_by('updated_at').get()]
         self.last_product_id = 0
         
         if type(self.products_list) is list:
@@ -104,6 +103,34 @@ class ProductsPage(LabelPage):
         except:
             pass
     
+    def load_csv(self, event=None):
+        '''
+        Load Content from csv
+        file
+
+        @param filename str Name of csv file
+        @return None
+        '''
+        filename = filedialog.askopenfilename(parent=self,
+                    title='Select CSV File',
+                    initialdir=os.curdir)
+        if filename:
+            self.products_list = Product.from_csv(filename)
+            #self.products_list = [Product(**prod) for prod in Product.order_by('updated_at').get()]
+            self.last_product_id = 0
+            
+            if type(self.products_list) is list:
+                self.update_products_count()
+                
+                for product in self.products_list:
+                    product.save()
+                    self.last_product_id =  self.products_list.index(product)
+                    
+                    prod = (product.id, product.name, product.price, product.quantity, product.updated_at)
+                    self.update_products_table(prod)
+            else:
+                print(self.products_list)
+    
     def content(self):
         ''''
         Create products page components
@@ -176,6 +203,13 @@ class ProductsPage(LabelPage):
                 state='normal' if session.user.is_admin() else 'disabled'
             ).grid(column=3, row=1, padx=10)
 
+            Button(
+                tools_frame,
+                text='Load CSV File',
+                command=self.load_csv,
+                state='normal' if session.user.is_admin() else 'disabled'
+            ).grid(column=4, row=1, padx=10)
+
         tools_frame.grid(column=0, columnspan=5, row=1, pady=5, sticky='nw')
 
         self.products_table = ttk.Treeview(products_frame, height=14)
@@ -183,15 +217,15 @@ class ProductsPage(LabelPage):
                                      'item_quantity', 'date')
         self.products_table.column('#0', width=0, stretch=NO)
         self.products_table.column('item_id', width=0, stretch=NO)
-        self.products_table.column('item_name', anchor=CENTER)
-        self.products_table.column('item_price', anchor=CENTER)
+        self.products_table.column('item_name', anchor='w')
+        self.products_table.column('item_price', anchor='e')
         self.products_table.column('item_quantity', anchor=CENTER)
         self.products_table.column('date', anchor=CENTER)
 
         self.products_table.heading('#0', text='', anchor=CENTER)
         self.products_table.heading('item_id', text='', anchor=CENTER)
-        self.products_table.heading('item_name', text='Name', anchor=CENTER)
-        self.products_table.heading('item_price', text='Price', anchor=CENTER)
+        self.products_table.heading('item_name', text='Name', anchor='w')
+        self.products_table.heading('item_price', text='Price', anchor='e')
         self.products_table.heading('item_quantity', text='In Stock', anchor=CENTER)
         self.products_table.heading('date', text='Date', anchor=CENTER)
 

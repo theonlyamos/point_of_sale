@@ -29,7 +29,7 @@ class StatisticsPage(LabelPage):
         self.draw_charts()
 
     def draw_charts(self, event=None):
-        sales_per_product = SaleItem.select('product_id, SUM(quantity) AS quantity, SUM(total) AS total').group_by(1).order_by(3, 'desc').get()
+        self.sales_per_product = SaleItem.select('product_id, SUM(quantity) AS quantity, SUM(total) AS total').group_by(1).order_by(3, 'desc').get()
         sales_per_person = Sale.select('user_id, COUNT(*) AS count, SUM(TOTAL) AS total').group_by('user_id').get()
         for item in sales_per_person:
             user = User.get(item['user_id'])
@@ -38,7 +38,7 @@ class StatisticsPage(LabelPage):
         print("================================")
 
         data = {'Products': [], 'Sales': []}
-        for item in sales_per_product:
+        for item in self.sales_per_product:
             # sale = Sale.get(item['sales_id'])
             # item['seller'] = sale.salesperson()['name']
             product = Product.get(item['product_id'])
@@ -144,10 +144,12 @@ class StatisticsPage(LabelPage):
         tools_frame.grid(column=0, row=2, padx=10, pady=5, sticky='nw')
 
         #self.draw_charts()
-        #self.bind('<<OnPacked>>', self.draw_charts)
+        self.bind('<<OnPacked>>', self.draw_charts)
         self.charts_frame.grid(column=0, row=3, pady=5, padx=10, sticky='s')
     
         self.master.wm_protocol('WM_DELETE_WINDOW', self.exit)
 
     def exit(self):
-        self.chart_figure.stop_event_loop()
+        if hasattr(self, 'sales_per_product'):
+            self.chart_figure.stop_event_loop()
+        self.master.destroy()

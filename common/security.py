@@ -4,7 +4,7 @@ from common import Utils
 
 identity = None
 
-def authenticate(username: str, password: str, role: str):
+def authenticate(username: str, password: str):
     '''
     Function for authenticating user
 
@@ -14,7 +14,7 @@ def authenticate(username: str, password: str, role: str):
     '''
     global identity
 
-    user = User.authenticate(username, role)
+    user = User.get_by_username(username)
     if user:
         if Utils.check_hashed_password(password, user.password):
             identity = user

@@ -22,7 +22,7 @@ class LoginPage():
         '''
 
         width = 400
-        height = 500
+        height = 400
 
         positionY = self.positionY-(height/3.5)
 
@@ -49,25 +49,25 @@ class LoginPage():
             foreground='#da1039'
         ).place(anchor='c', relx=0.5, rely=0.15)
         
-        ttk.Label(
-            self.frame,
-            text='Login As',
-            font='sans-serif 11',
-            foreground="#242424"
-        ).place(anchor='c', relx=0.5, rely=0.3)
+        # ttk.Label(
+        #     self.frame,
+        #     text='Login As',
+        #     font='sans-serif 11',
+        #     foreground="#242424"
+        # ).place(anchor='c', relx=0.5, rely=0.3)
 
-        self.role_var = StringVar()
-        self.role_var.set('admin')
-        role_select = ttk.Combobox(
-            self.frame,
-            textvariable=self.role_var,
-            font='monospace 10',
-            foreground='#4e4e4e',
-            background='white',
-            values=('cashier', 'admin'),
-            state='readonly',
-            justify='center'
-        ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.36)
+        # self.role_var = StringVar()
+        # self.role_var.set('admin')
+        # role_select = ttk.Combobox(
+        #     self.frame,
+        #     textvariable=self.role_var,
+        #     font='monospace 10',
+        #     foreground='#4e4e4e',
+        #     background='white',
+        #     values=('cashier', 'admin'),
+        #     state='readonly',
+        #     justify='center'
+        # ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.36)
 
         ttk.Label(
             self.frame,
@@ -75,17 +75,16 @@ class LoginPage():
             font='sans-serif 11',
             foreground="#242424",
             justify='center'
-        ).place(anchor='c', relx=0.5, rely=0.46)
+        ).place(anchor='c', relx=0.5, rely=0.3)
 
         self.username_var = StringVar()
-        self.username_var.set('theonlyamos')
         ttk.Entry(
             self.frame,
             textvariable=self.username_var,
             foreground='#4e4e4e',
             font='monospace 10',
             justify='center'
-        ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.52)
+        ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.36)
 
         ttk.Label(
             self.frame,
@@ -93,10 +92,9 @@ class LoginPage():
             font='sans-serif 11',
             foreground="#242424",
             justify='center'
-        ).place(anchor='c', relx=0.5, rely=0.63)
+        ).place(anchor='c', relx=0.5, rely=0.47)
 
         self.password_var = StringVar()
-        self.password_var.set('S0cr4t3s')
         ttk.Entry(
             self.frame,
             textvariable=self.password_var,
@@ -104,7 +102,7 @@ class LoginPage():
             font='monospace 10',
             show='*',
             justify='center'
-        ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.69)
+        ).place(anchor='c', width=250, height=35, relx=0.5, rely=0.54)
 
         Button(
             self.frame,
@@ -115,16 +113,16 @@ class LoginPage():
             activeforeground='white',
             font='monospace 13 bold',
             command=self.authenticate
-        ).place(anchor='c', width=250, height=45, relx=0.5, rely=0.8)
+        ).place(anchor='c', width=250, height=45, relx=0.5, rely=0.66)
 
         self.mainlayout = MainLayoutPage(self.window, self.positionX, self.positionY)
-        self.authenticate()
+        
     
     def authenticate(self):
         global session
 
         if not self.mainlayout.is_initialized:
-            user = authenticate(self.username_var.get(), self.password_var.get(), self.role_var.get())
+            user = authenticate(self.username_var.get(), self.password_var.get())
             if user:
                 session['user'] = user
                 self.mainlayout.initialize()
