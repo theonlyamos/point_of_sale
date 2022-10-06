@@ -1,7 +1,7 @@
-from cairosvg import svg2png
+#from cairosvg import svg2png
 from PIL import Image
 
-from io import BytesIO
+#from io import BytesIO
 import os
 
 
@@ -11,12 +11,14 @@ folder = os.path.realpath(os.path.join(os.curdir, 'assets'))
 
 for fd in os.listdir(folder):
     fname, ext = os.path.splitext(fd)
-    if ext != '.py':
+    #if ext != '.py':
+    if ext == '.png':
         img_url = os.path.realpath(os.path.join(os.curdir, 'assets', fd))
-        if ext == '.svg':
-            img_io = BytesIO()
-            svg2png(url=img_url, write_to=img_io)
-        icons[fname] = Image.open(img_io)
+        #if ext == '.svg':
+        #    img_io = BytesIO()
+        #    svg2png(url=img_url, write_to=img_io)
+        #icons[fname] = Image.open(img_io)
+        icons[fname] = Image.open(img_url).convert('RGBA')
 
 UserIcon = icons['user']
 PlusIcon = icons['plus']

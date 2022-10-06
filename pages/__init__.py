@@ -12,4 +12,4 @@ from pages.updatesale import UpdateSalePage
 from pages.newsaleitem import AddSaleItemPage
 from pages.updateproduct import UpdateProductPage
 from pages.calendar import BSCalendar as Calendar
-from pages.statistics import StatisticsPage
+#from pages.statistics import StatisticsPage

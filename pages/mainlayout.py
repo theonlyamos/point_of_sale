@@ -1,8 +1,7 @@
-from curses.ascii import isdigit
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-from cairosvg import svg2png
+#from cairosvg import svg2png
 from PIL import ImageTk, Image
 
 from common import Database
@@ -12,7 +11,7 @@ from pages.products import ProductsPage
 from pages.dashboard import DashboardPage
 from pages.sales import SalesPage
 from pages.users import UsersPage
-from pages.statistics import StatisticsPage
+#from pages.statistics import StatisticsPage
 
 from io import BytesIO
 import os
@@ -96,10 +95,10 @@ class MainLayoutPage():
             text='Users'
         )
 
-        self.statistics_frame = StatisticsPage(
-            self.window,
-            text='Statistics'
-        )
+        #self.statistics_frame = StatisticsPage(
+        #    self.window,
+        #    text='Statistics'
+        #)
 
     def sidebar(self):
         '''
@@ -147,16 +146,16 @@ class MainLayoutPage():
             command=lambda: self.change_page(self.users_frame)
         ).pack(fill='x')
 
-        Button(
-            self.sidebar_frame,
-            text='Statistics',
-            image=self.assets['settings'],
-            compound='top',
-            activebackground='#da1039',
-            font='monospace 13 bold',
-            state='normal' if session.user.is_admin() else 'disabled',
-            command=lambda: self.change_page(self.statistics_frame)
-        ).pack(fill='x')
+        #Button(
+        #    self.sidebar_frame,
+        #    text='Statistics',
+        #    image=self.assets['settings'],
+        #    compound='top',
+        #    activebackground='#da1039',
+        #    font='monospace 13 bold',
+        #    state='normal' if session.user.is_admin() else 'disabled',
+        #    command=lambda: self.change_page(self.statistics_frame)
+        #).pack(fill='x')
 
     def change_page(self, next_frame):
         self.current_frame.pack_forget()

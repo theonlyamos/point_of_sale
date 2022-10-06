@@ -1,5 +1,5 @@
 from tkinter import ttk
-from cairosvg import svg2png
+#from cairosvg import svg2png
 from PIL import ImageTk, Image
 
 from io import BytesIO
